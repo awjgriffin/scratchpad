@@ -5,7 +5,6 @@ import java.io.FileFilter;
 
 
 public class CounterUtils {
-
 	
 	public static int countFilesWithExtension(final String extension, String fromWhere) {
 		
@@ -20,6 +19,7 @@ public class CounterUtils {
 			
 		} else {
 			
+			// filter if is a directory or file with matching extension
 			FileFilter fileFilter = new FileFilter() {
 				
 				@Override
@@ -63,15 +63,15 @@ public class CounterUtils {
 				cnt++;
 			}
 		}
+		
 		return cnt;
+		
 	}
 	
 	
 	public static void main(String[] args) {
 		
-
 //		countFilesWithExtension("java", "C:\\Users\\Public\\Documents\\workspace\\scratchpad\\src\\main\\java");
-		
 		countFilesWithExtension("java", "C:\\Users\\Public\\Documents\\workspace\\riskengine-eod-6.3.3.22-SNAPSHOT\\src");
 	}
 	

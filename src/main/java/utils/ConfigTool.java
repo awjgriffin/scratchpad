@@ -160,9 +160,12 @@ public class ConfigTool {
 				this.description = description;
 			}
 
+			/**
+			 * Lists all commands <i>except</i> those without a description value.
+			 * @return
+			 */
 			public static String list() {
 
-				// if a command has no description, it is excluded from the list.
 				StringBuffer sb = new StringBuffer();
 				for(Command c : values()) {
 					if( isNotEmpty(c.description)) sb.append(c.name()).append(" - ").append(c.description).append("\n"); 
@@ -195,8 +198,6 @@ public class ConfigTool {
 				commandHistory.add( command.name() );
 				
 				switch(command) {
-		
-				
 				
 					case q:
 						System.exit(0);
@@ -301,7 +302,7 @@ public class ConfigTool {
 				node = node.getFirstChild();	
 			} else {
 				
-		      while (node.getNextSibling()==null && node != rootNode)
+		      while (node.getNextSibling() == null && node != rootNode)
 		            node=node.getParentNode();
 	
 			   node = node.getNextSibling();

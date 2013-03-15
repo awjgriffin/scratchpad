@@ -4,6 +4,13 @@ import static utils.IteratorFunctionalUtils.*;
 
 import java.util.Iterator;
 
+/**
+ * TODO: this takes forever...
+ * 
+ * 
+ * @author grandre
+ *
+ */
 public class Problem10 extends EulerProblem {
 
 	@Override

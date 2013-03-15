@@ -2,6 +2,7 @@ package utils;
 import java.math.BigInteger;
 import java.util.Iterator;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import selfstudy.fp.Function;
@@ -13,7 +14,7 @@ public class IteratorFunctionalUtilsTests {
 
 	@Test
 	public void testFibonacciTerms() {
-		printIterator(fibonacciNumbersLessThan(100));
+		printIterator(fibonacciNumbersLessThan(10000000));
 	}
 	
 	
@@ -89,6 +90,18 @@ public class IteratorFunctionalUtilsTests {
 	}
 
 	@Test
+	public void testToBaseString() {
+		
+		long[] longs = new long[]{4,37,99,127,255,1,0};
+		int base = 14;
+		
+		for (int i = 0; i < longs.length; i++) {
+			System.out.println( String.format("Decimal: %d, base %d: %s", longs[i], base, toBaseString(longs[i], base)));	
+		}
+		
+	}	
+	
+	@Test
 	public void testCount() {
 		 
 		String testString = "testCount";
@@ -119,11 +132,16 @@ public class IteratorFunctionalUtilsTests {
 	}
 	
 
-	@Test
+	@Ignore(value="not self-terminating")
 	public void testOnes() {
 		printIterator(ones());
 	}
 
+	@Ignore(value="self-terminating but takes a while")
+	public void testLongs() {
+		printIterator(longs());
+	}	
+	
 	
 	// --- HELPER METHODS ---------------------------------
 	private void printIterator(Iterator<?> in) {

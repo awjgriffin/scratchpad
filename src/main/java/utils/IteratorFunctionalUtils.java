@@ -157,6 +157,11 @@ public class IteratorFunctionalUtils {
 		return getFactors(integer).length == 2;
 	}
 	
+	/**
+	 * Returns an iterator of prime numbers up to <code>max</code>.
+	 * @param max
+	 * @return
+	 */
 	public static Iterator<Long> primes(final long max) {
 		
 		return new Iterator<Long>() {
@@ -285,6 +290,7 @@ public class IteratorFunctionalUtils {
 	}
 	
 	public static long sumOfSquares(long max) {
+		
 		long sum = 0;
 		Iterator<Long> longs = longs(max);
 		while(longs.hasNext()) {
@@ -295,6 +301,7 @@ public class IteratorFunctionalUtils {
 	}
 	
 	public static long squareOfSum(long max) {
+		
 		long sum = 0;
 		Iterator<Long> longs = longs(max);
 		while(longs.hasNext()) {
@@ -363,6 +370,12 @@ public class IteratorFunctionalUtils {
 	
 	public static long square(long in){	return in * in;	}
 	
+	/**
+	 * Standard deviation.
+	 * 
+	 * @param input
+	 * @return
+	 */
 	public static double stdDev(Long... input){
 		
 		// get average of input
@@ -384,7 +397,7 @@ public class IteratorFunctionalUtils {
 
 	public static Long multiplyLongs(Long... in) {
 
-			return reduce(MultiplyLongs, 1L, arrayIterator(in));
+		return reduce(MultiplyLongs, 1L, arrayIterator(in));
 	};
 
 
@@ -517,24 +530,29 @@ public class IteratorFunctionalUtils {
 		return toBinaryString(new Long(in));
 	}
 
-	
+	/**
+	 * Mod's the value by 2, then decrements the input value by a factor of two at each iteration.  
+	 * @param in
+	 * @return
+	 */	
 	public static String toBaseString(Long in, int base){
 		
-		if(base < 2) {return "Only bases greater than binary supported.";}
+		if(base < 2) {return "Only bases greater than 2 supported.";}
 		else {
-			return "";
+			
+			String s = "";
+			for(long i = in; i >= 1; i /= base) {
+				s = (i % base) + s;
+			}
+			
+			return in.longValue() == 0 ? "0" : s;
 		}
 	}
 	
-	
+
 	public static String toBinaryString(Long in) {
 
-		String s = "";
-		for(long i = in; i > 1; i /= 2) {
-			s = (i % 2) + s;
-		}
-		
-		return in.longValue() == 0 ? "0" : s;
+		return toBaseString(in, 2);
 	}
 
 	
@@ -600,6 +618,11 @@ public class IteratorFunctionalUtils {
 		
 	}
 	
+	/**
+	 * Basic iterating method.
+	 * @param n
+	 * @return
+	 */
 	public static BigInteger factorial(Long n) {
 		
 		BigInteger x = new BigInteger("1");
@@ -611,6 +634,9 @@ public class IteratorFunctionalUtils {
 	
 	}
 
+	/**
+	 * @return a never-ending stream of <code>1</code>s.
+	 */
 	 public static Iterator<Integer> ones(){
 		 
 		 return new Iterator<Integer>(){

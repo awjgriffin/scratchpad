@@ -1,18 +1,114 @@
 package projecteuler;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+
 public class Problem11 extends EulerProblem {
 
 	@Override
 	public void solution() {
 
+		try {
+			
+			int[][] array = parseArrayString();
+			
+			long maxProduct = passHorizontally(array);
+//			maxProduct = Math.max(maxProduct, passVertically(array));
+//			maxProduct = Math.max(maxProduct, passDiagonally(array));
+			
+			System.out.println( maxProduct );
+			
+		} catch (IOException e) {
+
+			System.out.println("ERROR occured");
+		}
 	}
 
-	private int[] [] getArray() {
+	private long passHorizontally(int[][] array){
 		
+		long maxProduct = Long.MIN_VALUE;
+
+		for(int x = 0; x < array.length; x++) {
+
+			for(int y = 0; (y + 3) < array.length; y++) {
+				maxProduct = Math.max( maxProduct, (array[x][y] * array[x][y+1] * array[x][y+2] * array[x][y+3]) );
+			}
+			
+		}
 		
-		return null;
+		return maxProduct;
+	}
+	
+	private long passVertically(int[][] array){
 		
+		long maxProduct = Long.MIN_VALUE;
 		
+		for(int x = 0; x < array.length; x++) {
+
+			for(int y = 0; y + 3 < array.length; y++) {
+				maxProduct = Math.max( maxProduct, (array[y][x] * array[y+1][x] * array[y+2][x] * array[y+3][x]) );
+			}
+			
+		}		
+		
+		return maxProduct;		
+	}
+	
+	private long passDiagonally(int[][] array){
+		
+		long maxProduct = Long.MIN_VALUE;
+		
+		//first, with diagonals from top left to right ("backslashes")
+		
+		for(int x = 0; x + 3 < array.length; x++) {
+
+			for(int y = 1; y + 3 < array.length; y++) {
+				
+				printOut(array[x][y], array[x+1][y+1], array[x+2][y+2], array[x+3][y+3]);
+				
+				maxProduct = Math.max( maxProduct, (array[x][y] * array[x+1][y+1] * array[x+2][y+2] * array[x+3][y+3]) );
+			}
+			
+		}			
+		
+		// then, with diagonals from top right to left ("forward slashes")		
+		
+		return maxProduct;		
+	}
+	
+	
+	private void printOut(int...ints) {
+
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < ints.length; i++) {
+			sb.append(i).append(i + 1 < ints.length ? "," : "");
+		}
+		System.out.println(sb.toString());
+	}
+	
+	private int[] [] parseArrayString() throws IOException {
+		
+		int [] [] theGrid = new int [20][20];
+		
+		BufferedReader bufferedReader = new BufferedReader(new StringReader( getArrayString() ));
+		
+		String line = "";
+		int x = 0;
+		
+		while( (line = bufferedReader.readLine()) != null ){
+
+			String [] numbers = line.split(" "); 
+			for (int i = 0; i < numbers.length; i++) {
+				theGrid[x][i] = Integer.parseInt(numbers[i]);
+			}
+			x++;
+			
+		}
+		
+		bufferedReader.close();
+		
+		return theGrid;
 	}
 	
 	private String getArrayString() {
@@ -43,12 +139,8 @@ public class Problem11 extends EulerProblem {
 	@Override
 	public String problemDescription() {
 
-		return 
-		"In the 20×20 grid below, four numbers along a diagonal line have been marked in red.\n\n" + 
-		getArrayString() + 
-		"\nThe product of these numbers is 26 × 63 × 78 × 14 = 1788696.\n\n" + 
+		return  getArrayString() +  
 		"What is the greatest product of four adjacent numbers in any direction (up, down, left, right, or diagonally) in the 20×20 grid?";
-		
 	}
 
 }

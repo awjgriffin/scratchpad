@@ -9,7 +9,16 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.log4j.Logger;
 
-
+/**
+ * A {@link java.util.AbstractMap} implementation which allows the user to specify a reload method and interval.
+ * Once instantiated, this list will refresh its own data using the supplied method, at the interval given.
+ * There is a protected method {@link #turnOff} to disable the caching features.
+ * 
+ * @author grandre
+ *
+ * @param <K>
+ * @param <V>
+ */
 @SuppressWarnings("unused")
 public class CacheMap<K, V> extends AbstractMap<K, V> implements Map<K,V> {
 
