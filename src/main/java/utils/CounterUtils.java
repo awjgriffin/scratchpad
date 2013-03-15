@@ -6,11 +6,12 @@ import java.io.FileFilter;
 
 public class CounterUtils {
 
-	static int count = 0;
 	
 	public static int countFilesWithExtension(final String extension, String fromWhere) {
 		
 		File start = new File(fromWhere);
+		
+		int count = 0;
 		
 		if( !start.isDirectory() ){
 			
@@ -38,9 +39,9 @@ public class CounterUtils {
 				}
 			};
 
-			recurseFiles(start, fileFilter);
+			count = recurseFiles(start, fileFilter, 0);
 			
-			System.out.println(String.format("Count of files with %s extension: %d", extension, count));
+			System.out.println(String.format("Count of files with '%s' extension: %d", extension, count));
 			
 		}
 		
@@ -48,7 +49,7 @@ public class CounterUtils {
 	}
 	
 	
-	private static void recurseFiles(File top, FileFilter filter) {
+	private static int recurseFiles(File top, FileFilter filter, int cnt) {
 		
 		File[] listFiles = top.listFiles(filter);
 		
@@ -56,13 +57,13 @@ public class CounterUtils {
 			
 			File file = listFiles[i];
 			if(file.isDirectory()){
-				recurseFiles(file, filter);
+				cnt = recurseFiles(file, filter, cnt);
 			} else {
 				System.out.println(file.getAbsolutePath());
-				count++;
+				cnt++;
 			}
 		}
-		
+		return cnt;
 	}
 	
 	
