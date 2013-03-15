@@ -14,8 +14,8 @@ public class Problem11 extends EulerProblem {
 			int[][] array = parseArrayString();
 			
 			long maxProduct = passHorizontally(array);
-//			maxProduct = Math.max(maxProduct, passVertically(array));
-//			maxProduct = Math.max(maxProduct, passDiagonally(array));
+			maxProduct = Math.max(maxProduct, passVertically(array));
+			maxProduct = Math.max(maxProduct, passDiagonally(array));
 			
 			System.out.println( maxProduct );
 			
@@ -60,19 +60,23 @@ public class Problem11 extends EulerProblem {
 		long maxProduct = Long.MIN_VALUE;
 		
 		//first, with diagonals from top left to right ("backslashes")
-		
-		for(int x = 0; x + 3 < array.length; x++) {
+		for(int a = 0; a + 3 < array.length; a++) {
 
-			for(int y = 1; y + 3 < array.length; y++) {
+			for(int b = 0; b + 3 < array.length; b++) {
 				
-				printOut(array[x][y], array[x+1][y+1], array[x+2][y+2], array[x+3][y+3]);
+//				printOut(array[a][b], array[a+1][b+1], array[a+2][b+2], array[a+3][b+3]);
 				
-				maxProduct = Math.max( maxProduct, (array[x][y] * array[x+1][y+1] * array[x+2][y+2] * array[x+3][y+3]) );
+				maxProduct = Math.max( maxProduct, (array[a][b] * array[a+1][b+1] * array[a+2][b+2] * array[a+3][b+3]) );
 			}
-			
 		}			
 		
 		// then, with diagonals from top right to left ("forward slashes")		
+		for(int a = 0; a + 3 < array.length; a++) {
+
+			for(int b = (array.length - 1); b - 3 >= 0 ; b--) {
+				maxProduct = Math.max( maxProduct, (array[a][b] * array[a+1][b-1] * array[a+2][b-2] * array[a+3][b-3]) );
+			}
+		}
 		
 		return maxProduct;		
 	}
@@ -82,8 +86,9 @@ public class Problem11 extends EulerProblem {
 
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < ints.length; i++) {
-			sb.append(i).append(i + 1 < ints.length ? "," : "");
+			sb.append(ints[i]).append(i + 1 < ints.length ? "," : "");
 		}
+		
 		System.out.println(sb.toString());
 	}
 	
@@ -104,6 +109,7 @@ public class Problem11 extends EulerProblem {
 			}
 			x++;
 			
+//			System.out.println(line);
 		}
 		
 		bufferedReader.close();
