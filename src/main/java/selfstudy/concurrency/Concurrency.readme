@@ -1,0 +1,527 @@
+CONCURRENCY NOTES (most direct quotes from "Java Concurrency In Practice", Goetz et al.)
+
+
+CHEAT SHEET:
+• All concurrency issues boil down to coordinating access to mutable state. The less mutable state, the easier it is to
+ensure thread safety.
+• Make fields final unless they need to be mutable.
+• Immutable objects are automatically thread-safe.
+• Encapsulating data within objects makes it easier to preserve their invariants; encapsulating synchronization within
+objects makes it easier to comply with their synchronization policy.
+• Guard each mutable variable with a lock.
+• Guard all variables in an invariant with the same lock.
+• Hold locks for the duration of compound actions.
+• A program that accesses a mutable variable from multiple threads without synchronization is a broken program.
+• Don't rely on clever reasoning about why you don't need to synchronize.
+• Include thread safety in the design processor explicitly document that your class is not thread-safe.
+• Document your synchronization policy.
+
+
+The real performance payoff of dividing a program’s workload into tasks 
+comes when there are a large number of independent, homogeneous tasks
+that can be processed concurrently" - Java Concurrency in Practice.
+The productivity gain must be worth the added complexity of the code.  
+For example, two heterogenous tasks, one of which takes 10x as long as the second, only yields a 9% productivity gain.
+
+The definition of thread safety requires that invariants be preserved regardless of timing or interleaving of operations in
+multiple threads.
+
+Using a non-thread-safe object in a within-thread context is still thread-safe.
+
+The thread API has no formal concept of thread ownership: a thread is represented with a Thread
+object that can be freely shared like any other object. However, it makes sense to think of a thread as having an owner,
+and this is usually the class that created the thread. 
+Provide lifecycle methods whenever a thread‐owning service has a lifetime longer than that of the method that created
+it, such as those provided by the ExecutorService.
+
+
+DEADLOCK
+
+When two threads are kept in a waiting state because they rely on the results of each other in order to proceed.
+
+
+RACE CONDITIONS
+
+"A race condition occurs when the correctness of a computation depends on the relative timing or interleaving of 
+multiple threads by the runtime; in other words, when getting the right answer relies on lucky timing. 
+The most common type of race condition is check-then-act, 
+where a potentially stale observation is used to make a decision on what to do next."
+
+"Compound actions on shared state, such as incrementing a hit counter (read-modify-write) or 
+lazy initialization (check-then-act), must be made atomic to avoid race conditions."
+
+Example check-then-act: an unsynchronized getInstance() method of a typical Singleton idiom, where the condition is:
+"if(instance == null)....".  Two threads may enter the method, and depending on the host processor
+scheduling, both may create a new instance.
+
+
+SYNCHRONIZATION
+
+"Every shared, mutable variable should be guarded by exactly one lock. Make it clear to maintainers which lock that is."
+If necessary, create multiple mutexes, name them appropriately, and provide ample commentary.
+
+Vectors have synchronized access on each method.  BUT, the following code represents a race condition: 
+
+	if (!vector.contains(element))
+		vector.add(element);
+		
+..because they're two separate actions.  In order to make this atomic, it should be wrapped in a synchronized block.
+
+"You should be careful not to make the scope of the synchronized block too small; 
+you would not want to divide an operation that should be atomic into more than one synchronized block. 
+But it is reasonable to try to exclude from synchronized blocks long-running operations that 
+do not affect shared state, so that other threads are not prevented from accessing the shared state while 
+the long-running operation is in progress."
+
+Avoid holding locks during lengthy computations, or other tasks that might not complete quickly, 
+such as network or console I/O.
+
+"There is no guarantee that operations in one thread will be performed in the order given by the program"
+"In the absence of synchronization, the compiler, processor, and runtime can do some downright weird things to the
+order in which operations appear to execute. Attempts to reason about the order in which memory actions "must"
+happen in insufficiently synchronized multi-threaded programs will almost certainly be incorrect."
+
+
+STALE DATA
+
+The use of synchronization itself does not preclude the possibility of seeing stale data.  Consider a simple
+Data Object with synchronized getters and setters - client threads may see stale values in a multi-threaded
+environment.
+
+There are TWO reasons for locking/synchronization:
+1. Mutual exclusion;
+2. Memory visibility (i.e. everything performed within the sychronized block will be visible to all other
+threads after that block is finished.)
+
+
+VOLATILE
+
+"When a field is declared volatile, the compiler and runtime are put on notice that 
+this variable is shared and that operations on it should not be reordered with other memory operations."
+
+Volatile is a weaker form of synchronization, in the sense that it guarantees memory visibility, but 
+it does not perform any locking.
+E.g.
+volatile boolean asleep;   // without volatile this thread may not see any updates performed by another thread.
+	...
+	while (!asleep)
+		countSomeSheep();
+
+Their most common usage is as completion, interruption, or status flags.
+
+
+NON-ATOMIC 64-BIT OPERATIONS
+
+The Java Memory Model requires fetch and store operations to be atomic, 
+but for nonvolatile long and double variables, the JVM is permitted to treat a 64-bit read or 
+write as two separate 32-bit operations. 
+
+If the reads and writes occur in different threads, 
+it is therefore possible to read a nonvolatile long and get back the high 32 bits of one value and the low 32 
+bits of another. Thus, even if you don't care about stale values, 
+it is not safe to use shared mutable long and double variables in multithreaded programs unless they are declared volatile or guarded by a lock.
+ 
+Letting "this" reference escape
+
+STARTING a thread in a constructor can do this (because the Thread or Runnable is an inner class).  You can create Threads
+in the constructor, but don't start them.  Consider a static factory-method instead.
+
+
+THREAD CONFINEMENT means restricting access to data by limiting the number of threads to just one.  This can not be 
+accomplished with the keywords or lock idioms.
+
+STACK CONFINEMENT is a special case of thread confinement in which an object can only be reached through local 
+(i.e. method-scope) variables.
+
+THREAD-LOCAL
+"Thread-Local provides get and set accessor methods that maintain a separate copy of the value for each thread that uses it, so a get returns the most recent value passed to set from the currently executing thread."
+
+"Conceptually, you can think of a ThreadLocal<T> as holding a Map<Thread,T> that stores the thread-specific Values, though this is not how it is actually implemented."
+
+
+IMMUTABILITY
+
+"Even if an object is mutable, making some fields final can still simplify reasoning about its state, since limiting the
+mutability of an object restricts its set of possible states."
+
+It's good practice to mark all fields as final and private unless they need mutability or greater visibility.
+
+SAFE PUBLICATION
+To publish an object safely, both the reference to the object and the object's state must be made visible to other
+threads at the same time. A properly constructed object can be safely published by:
+• Initializing an object reference from a static initializer;
+• Storing a reference to it into a volatile field or AtomicReference;
+• Storing a reference to it into a final field of a properly constructed object; or
+• Storing a reference to it into a field that is properly guarded by a lock.
+
+Using a static initializer is often the easiest and safest way to publish objects that can be statically constructed:
+e.g. public static Holder holder = new Holder(42);
+Static initializers are executed by the JVM at class initialization time;
+
+Objects that are not technically immutable, but whose state will not be modified after publication, are called effectively
+immutable... they merely need to be treated by the program as if they were immutable after they are published.
+
+Constraints placed on states or state transitions by invariants and post-conditions create additional synchronization or encapsulation requirements.
+Multivariable invariants like this one create atomicity requirements: related variables must be fetched or updated in a single atomic operation. You cannot update one, release and reacquire the lock, and then 
+update the others, since this could involve leaving the object in an invalid state when the lock was released.
+
+Can an object's state be composed of only a subset of its fields?  Does it "own" all of it's state?  For example, 
+it may "own" a reference to a HashMap, but if that Hashmap is published then it has, at best, shared ownership of that HashMap's
+objects.
+
+Collection classes often exhibit a form of "split ownership", in which the collection owns the state of the collection
+infrastructure, but client code owns the objects stored in the collection.
+
+The Java MONITOR PATTERN
+
+public class PrivateLock {
+	private final Object myLock = new Object();
+	@GuardedBy("myLock") Widget widget;
+		void someMethod() {
+			synchronized(myLock) {
+			// Access or modify the state of widget
+		}
+}
+
+Making the lock object private encapsulates the lock so that client code cannot acquire it, 
+whereas a publicly accessible lock allows client code to participate in its synchronization policy - correctly or incorrectly.
+
+If a state variable is thread-safe, does not participate in any invariants that constrain its value, and has no prohibited state transitions for any of its operations, then it can safely be published.
+
+CHOOSE THE CORRECT LOCK
+
+List list = Collections.synchronizedList(new ArrayList());
+
+synchronized(list) {
+	// MUST synchronize on the list object when performing atomic operations!
+}
+
+Client-side locking violates encapsulation of synchronization policy, and should be avoided.  
+Implementaiton of synchronization with client-side locking or extension (as opposed to composition) is fragile.	
+
+Whenever possible, delegate synchronization duties to existing thread-safe classes.
+
+DOCUMENT a class's thread safety guarantees for its clients; document its synchronization policy for its maintainers.
+
+ITERATORS - if they detect that the collection has changed since iteration began, they throw the
+unchecked ConcurrentModificationException.  They are designed to catch concurrency errors on a "good faith-effort" 
+basis and thus act only as early-warning indicators for concurrency problems.
+
+They can even throw ConcurrentModificationException in a single-threaded environment, if iterator.remove() is not
+used.  They maintain a "modification count", and throw the exception if this count changes during iteration.
+
+The for-each loop syntax is internally compiled into an iterator.
+
+Just as encapsulating an object's state makes it easier to preserve its invariants, encapsulating its synchronization makes
+it easier to enforce its synchronization policy.
+
+The concurrent collections handle concurrency better than the synchronized collections; they are meant to be used
+in multi-threaded environments and are performant.  Replacing the synchronized versions with the concurrent can offer 
+dramatic scalability improvements.
+They accomodate concurrent readers and limited concurrent writers.  Iterators are not fail-fast, they are 
+weakly consistent - they can handle modifications but may not reflect any modifications since the creation of the 
+iterator.  E.g. ConcurrentHashMap.
+size() and isEmpty() - methods that operate on the entire map - have been weakened.  They can only guarantee estimates,
+but the justification is that in a highly concurrent environment, these methods are not as useful as iteration,
+and therefore the requirements have weakened.
+It also includes atomic put-if-absent, remove-if-equal, and replace-if-equal methods.
+
+CopyOnWriteArrayList/Set use a backing-array, which is copied upon each modification in order to allow for
+concurrency.  It is best used when iteration is far more common than modification, as there is a cost associated with the 
+copy.  Iterators guarantee a consistent state from when the iterator was created, and do not account for modifications.
+
+Blocking queues support the provider-consumer pattern by offering blocking methods for "put" and "take".  
+That is, if the queue is full, the method will wait to put, and if the queue is empty, it will wait to take.
+The "offer" method returns a failure status if the item cannot be enqueued, which allows for some flexibility in 
+the client code.
+Bounded queues are a powerful resource management tool for building reliable applications: they make your program
+more robust to overload by throttling activities that threaten to produce more work than can be handled.
+All the blocking queue implementations contains sufficient internal synchronization to safely publish objects from a 
+producer thread to a consumer thread.
+
+Deques (double-ended queues, pronounced "decks") can efficiently remove from both ends.  This lends itself to a 
+pattern called "work-stealing", whereby if a consumer exhausts its own work deque, it can steal from the tail of
+another consumer's deque. 
+
+BLOCKING AND INTERRUPTIONS
+A "blocking" method is one that must wait for another event (I/O, a lock, an external computation etc.).  It is
+kept in a BLOCKING, WAITING or TIMED_WAITING state, until it can proceed, at which point it returns to 
+RUNNING status and is eligible for scheduling. 
+If a method can throw InterruptedException, it is a sure sign it is a blocking method (this applies to the method
+calling this method, too!)
+Interruption is a co-operative process - no thread can tell another thread to stop what it's doing, 
+it can only request some action.  The thread can either:
+1. Propagate the InterruptedException.
+2. Restore the interrupt by calling interrupt on the current thread, to wit:
+public void run() {
+	try {
+		processTask(queue.take());
+	} catch (InterruptedException e) {
+		// restore interrupted status
+		Thread.currentThread().interrupt();
+	}
+}
+
+DON'T catch it and do nothing - this deprives the calling thread of an opportunity to act on the interrupt.
+
+SYNCHRONIZERS
+Any object that coordinates the control flow of threads based on its state. E.g. blocking queues, semaphores, barriers, latches.
+All synchronizers share certain structural properties: they encapsulate state that determines whether threads arriving at
+the synchronizer should be allowed to pass or forced to wait, provide methods to manipulate that state, and provide
+methods to wait efficiently for the synchronizer to enter the desired state.
+LATCH - a simple gate.  Until it reaches its terminal state, no thread can pass.  In it's terminal state, it allows threads to pass.
+Latches can be used to suspend events until a requisite event has occurred; e.g. a computation does not proceed
+until certain resources have been initialized, or an on-line game does not start until all players join.
+CountdownLatch is a flexible implementation, which is initialized at a postive number.  The countDown() method
+decrements this number, and when it reaches 0, it allows threads to pass.
+E.g.
+public class TestHarness {
+	public long timeTasks(int nThreads, final Runnable task) throws InterruptedException {
+		final CountDownLatch startGate = new CountDownLatch(1);
+		final CountDownLatch endGate = new CountDownLatch(nThreads);
+		for (int i = 0; i < nThreads; i++) {
+			Thread t = new Thread() {
+			public void run() {
+				try {
+					startGate.await();
+					try {
+						task.run();
+					} finally {
+						endGate.countDown();
+					}
+				} catch (InterruptedException ignored) { }
+			}
+			};
+			t.start();
+		}
+		long start = System.nanoTime();
+		startGate.countDown();
+		endGate.await();
+		long end = System.nanoTime();
+		return end-start;
+}
+
+FutureTask acts like a latch.  It implements Future, so Future.get() with a FutureTask will return the result
+if the task is completed, otherwise it will block/wait (or throw an Exception.)
+ 
+A Semaphore is used to control the number of activites that can access a certain resource or perform a 
+given action.  A semaphore manages a set of virtual permits, consumers use an acquire()/release() idiom.
+A binary Semaphore can be used as a mutex with non-reentrant locking semantics. 
+
+You can use a Semaphore to turn any collection into a blocking bounded collection.
+
+Barriers are similar to latches but a barrier requires that a group of threads come together at a barrier point at 
+the same time in order to proceed.  E.g. "everyone meet at the park at 7am, and nobody leaves until we're all there."
+CyclicBarrier allows a fixed number of parties to reach the barrier repeatedly, as during parallel iterative
+computations.  Each thread calls await() when they reach the barrier point.  If all threads meet, the threads are released
+and the barrier reset, otherwise a BrokenBarrierException is thrown. When a barrier is successfully passed, it issues
+a unique arrival index for each thread, which can then "elect" a leader to take some special action in the next iteration.
+Very useful for breaking a large task into parallel, independent pieces, the results of which can be halted and 
+merged at a particular point (the barrier), and then continue if necessary.
+
+Exchangers are two-party barriers.  Two threads may safely publish via an Exchanger.
+
+A Cache implementation using ConcurrentHashMap and FutureTask(s): 
+
+Instead of a value in the cache, a FutureTask is used, so cache.get(key) will generally (although there's a chance)
+not be null.  The value may not be immediately available, but the client can wait on it, rather than
+re-calculating the value itself.    
+
+public class Memorizer3<A, V> implements Computable<A, V> {
+		private final Map<A, Future<V>> cache 	= new ConcurrentHashMap<A, Future<V>>();
+		private final Computable<A, V> c;
+		public Memorizer3(Computable<A, V> c) { this.c = c; }
+		
+		public V compute(final A arg) throws InterruptedException {
+			Future<V> f = cache.get(arg);
+			if (f == null) {    // PUT-IF-ABSENT check: this can not be made atomic, so 
+				Callable<V> eval = new Callable<V>() {
+				public V call() throws InterruptedException {
+					return c.compute(arg);
+				}
+			};
+
+			FutureTask<V> ft = new FutureTask<V>(eval);
+			f = ft;
+			cache.put(arg, ft);
+			ft.run(); // call to c.compute happens here
+		}
+		try {
+			return f.get();
+		} catch (ExecutionException e) {
+			throw launderThrowable(e.getCause());
+		}	
+	}
+}
+
+
+PART 2: STRUCTURING CONCURRENT APPLICATIONS
+
+Ideally, tasks should be independent, and not rely on the state, result, or side effects of another task. This
+facilitates concurrency, and avoid race conditions.
+
+Some time should be taken during design to decide on intelligent task boundaries.  
+These might fall along natural boundaries (e.g. user request), or be divided based on optimal use of available
+hardware resources. E.g. an HTML page renderer that has two tasks - one to render the text (CPU-intensive) 
+and one to render the images (I/O-intensive). 
+Heterogeneous tasks may be of different sizes/duration, and will not benefit greatly from parallelism.
+
+
+Choosing task boundaries wisely and using sensible execution policies can achieve performance, scalability and safety.
+
+Thread creation requires overhead for creation and tear-down, and they consume resources.  Unmanaged thread creation
+can lead to instability and the possibility of OutOfMemoryErrors.
+Therefore, the number and frequency of thread creation should be considered and bounded.
+
+EXECUTORS allow you to decouple task submission from task execution.
+
+Executor Service allows for graceful (no new threads accept but allows existing to finish) and abrupt shutdowns (no new threads and tries to cancel existing.)
+New tasks added after shutdown are handled by the rejected execution handler (inherent or provided.) 
+
+TimerTasks use only a single thread to execute tasks, whereas ScheduledThreadPoolExecutor supports multiple.
+TimerTasks don't handle any unchecked exceptions thrown from their tasks, and don't try to resurrect thier threads, 
+they just assume they're cancelled. 
+TimerTasks support absolute time, ScheduledThreadPoolExecutor support only relative time.
+There's little reason to use Timer after Java 5.0.
+
+DelayQueue/Delayed idiom allows you to specify a delay for each task, and these can only be taken from the queue if 
+that time has expired/elapsed.
+
+Callable - Runnables that return a value (and throw an Exception.)  Callable<VOID> is used for void return types.  
+A Future represents an asynchronous task, with the ability to check on its progress, and a blocking get(), for tasks in progress.
+RunnableFuture - a Future that is Runnable. 
+
+CompletionService combines the functionality of an Executor and a BlockingQueue. You can submit Callable tasks
+to it for execution and use the queue-like methods take and poll to retrieve completed results, packaged as Futures,
+as they become available.
+
+ExecutorService.inkokeAll returns a List<Future>, as a convenience.
+
+Thread Cancellation and Shutdown
+
+There's no way to stop a thread, only to interrupt it and request it to terminate.  It is a cooperative effort.
+
+A task that wants to be cancellable must have a cancellation policy that specifies how other code can request cancellation, 
+when the task checks whether cancellation has been requested, and what actions the task takes in response to a cancellation request.
+
+This is often implemented as a simple boolean check (e.g. "cancelRequested") However, the thread must check this flag.
+Be careful of tasks running blocking methods.  For example, a producer thread putting items into a BlockingQueue.
+If the queue is full, and the consumer tries to interrupt the producer thread, the producer will never see that an 
+interrupt has been requested.
+In this situation, using the interrupt() method is the best way, e.g.:
+
+class PrimeProducer extends Thread {
+	private final BlockingQueue<BigInteger> queue;
+	
+	PrimeProducer(BlockingQueue<BigInteger> queue) {
+		this.queue = queue;
+		}
+	public void run() {
+		try {
+			BigInteger p = BigInteger.ONE;
+			while (!Thread.currentThread().isInterrupted())
+				queue.put(p = p.nextProbablePrime());
+		} catch (InterruptedException consumed) {
+		/* Allow thread to exit */
+		}
+	}
+	
+	public void cancel() { interrupt(); }
+}
+
+However, if there are no/few long-running/blocking methods, it may suffice to check the interrupted status flag in a loop.
+
+When a InterruptException occurs, it resets the interrupted flag.
+
+Tnterrupting a thread sets its interrupted status to true
+Interruption just requests that the thread interrupt itself at the next convenient opportunity.
+DOCUMENT the interrupt/cancellation policy of the Runnable class.  
+Throwing InterruptedException is the simplest policy.  
+Tasks do not execute in threads they own, so for the sake of the calling code, it's important to preserve the interrupted status, 
+if no action is to be taken, via: Thread.currentThread().interrupt();
+
+Don't interrupt a thread unless you know what its interruption policy is.
+
+You can cancel a thread via Future.cancel(true), which allows the executor service to interrupt a running task. Only once!  
+
+Some threads are unresponsive to interruptions, e.g. the Input/OutputStream read wand write methods, respectively.
+(You'd have to close the socket to force a SocketException.) 
+
+Lock.lockInterruptibly allows you to wait for a lock and still be responsive to interrupts.
+
+Unfortunately, there is no shutdown option in which tasks not yet started are returned to the caller but tasks in progress are allowed to
+complete; such an option would eliminate this uncertain intermediate state.
+
+Letting RuntimeExceptions bubble out of Runnables can compromise the entire application.  Within a ThreadPool
+scenario, using the following idiom is safer, and may allow the ThreadPool to restart/replace threads:
+
+public void run() {
+	Throwable thrown = null;
+	try {
+		while (!isInterrupted())
+			runTask(getTaskFromWorkQueue());
+		} catch (Throwable e) {
+			thrown = e;
+		} finally {
+			threadExited(this, thrown);
+	}
+}
+
+Use Thread.UncaughtExceptionHandler implementations for longer-running applications. 
+Set it with Thread.setDefaultUncaughtExceptionHandler(UEH), or by specifying a ThreadFactory with ExecutorServices.
+
+Somewhat confusingly, exceptions thrown from tasks make it to the uncaught exception handler only for tasks
+submitted with execute; for tasks submitted with submit, any thrown exception, checked or not, is considered to be
+part of the task's return status. If a task submitted with submit terminates with an exception, it is rethrown by
+Future.get, wrapped in an ExecutionException.
+
+JVM Shutdown
+Runtime.halt, System.exit(), CTRL+C, SIGINT, etc.
+
+In an orderly shutdown, the JVM executes (in no guaranteed order) all shutdownHooks registered with Runtime.addShutdownHook.  It makes no attempt to stop or interrupt application threads.  If the shutdownHooks hang or dont' complete, an abrupt shutdown is required, at which time the JVM merely shutds down, without running shutdown hooks.
+
+Shutdown hooks should be thread-safe, and make no assumptions about the state of other application services (code them defensively), execute and quit quickly.
+They execute concurrently, so shared access is a concern.  One useful pattern would be to have a single shutdown hook that shutds down services in an orderly fashion.
+
+Daemon threads should be used sparingly ‐ few processing activities can be safely abandoned at any time with no
+cleanup.
+
+Finalizers are run in a thread managed by the JVM, so any state accessed by a finalizer will therefore be accessed by multiple threads, and require synchronization.
+Avoid finalizers - use try/finally for closing socket or file handles.
+
+
+CHAPTER 8 - APPLYING THREAD POOLS
+
+Independent tasks are the best; other tasks that may require specific execution policies include:
+Whenever you submit to an Executor tasks that are not independent, be aware of the possibility of thread starvation
+deadlock, and document any pool sizing or configuration constraints in the code or configuration file where the
+Executor is configured.  Consider other resource restraints, such as database connections.  Your thread pool, if each thread is using a
+database connection, needs not be any bigger than the number of database connections.
+
+- dependent tasks;
+- tasks exploiting thread confinement;
+- tasks that use ThreadLocal. ThreadLocal allows each thread to have its own private "version" of a variable. However,
+executors are free to reuse threads as they see fit. The standard Executor implementations may reap idle threads when
+demand is low and add new ones when demand is high, and also replace a worker thread with a fresh one if an
+unchecked exception is thrown from a task. ThreadLocal makes sense to use in pool threads only if the thread‐local
+value has a lifetime that is bounded by that of a task; Thread-Local should not be used in pool threads to communicate
+values between tasks.
+
+Use the timed versions of blocking methods, such as:
+1) Thread.join
+2) CountDownLatch.await
+3) BlockingQueue.put
+4) Selector.select
+
+
+To size a thread pool properly, you need to understand your computing environment, your resource budget, and the
+nature of your tasks. How many processors does the deployment system have? How much memory? Do tasks perform
+mostly computation, I/O, or some combination? Do they require a scarce resource, such as a JDBC connection?
+For compute‐intensive tasks, an Ncpu‐processor system usually achieves optimum utilization with a thread pool of Ncpu + 1 threads.
+For tasks that also include I/O or other blocking operations, you want a larger pool, since not all of the threads will be schedulable at all times.
+int N_CPUS = Runtime.getRuntime().availableProcessors();
+
+
+
+
+

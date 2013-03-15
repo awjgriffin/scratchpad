@@ -1,0 +1,59 @@
+TODO:
+
+1. a) Create your own Integer class with a simple hash.  
+   b) Create an array-based collection which uses a configurable hash method and calculates distribution.  Array length should be a prime number.
+
+2. Calculate compound interest, calc discount factor, PV in terms of REDUCE
+
+3. Try a simple app only using HashMaps instead of custom classes/domain objects, a la clojure records
+
+4. Fix LinkedList so it's a persistent data structure 
+
+5. 
+
+6. Write a REPL, complete with command history, perhaps a learning intuitive/auto-complete(as the history grows, so does the REPL's "vocabulary")
+6a) Write a simple test to take the name of a class and load it into memory, without using "new"
+
+
+THREADS/CONCURRENCY:
+
+Try to identify task boundaries intelligently, and which executor service suits each problem best.  
+I/O and CPU usage (and CPU count!) are the major considerations.
+
+7. Test the non-reentrant locking semantics of a binary Semaphore (initial count of 1).
+8. Write something with a CyclicBarrier.
+9. "" with a Exchanger
+10. "" DelayedQueue/Delayed
+
+11. Write a few interruption policies, which don't cancel, and some cancellation policies.  
+
+
+
+
+Functional Programming in Java - Chapter 3 Exercises
+
+1. Add a factory method to ListModule that takes a variable argument list of elements
+and returns a properly constructed list.
+2. Implement a new ListModule where head and tail return Options. This eliminates
+the slight smell of throwing exceptions for the empty list case. However, using
+Options makes some other code more awkward, as a unit test will show.
+3. Re-implement the Option hierarchy following the idioms used for List; e.g., make
+None a static constant.
+4. Implement a MapModule with an abstract data type Map. The implementation classes
+should use side-effect-free functions and immutability. How can you enable the
+use of alternative implementations that optimize performance and memory usage?
+What implementations would optimize the following:
+a. A map that contains just a few key-value pairs.
+b. A map that contains a few million key-value pairs.
+c. A map that optimizes insertion performance.
+d. A map that optimizes search performance.
+e. A map that retains the order of insertion (e.g., for subsequent traversal).
+5. Foreach Example prints the arguments in reverse order. Determine the cause and
+implement a fix. Hint: consider adding a useful method to ListHelper that is commonly
+found in List classes.
+6. Reimplement the equals and toString methods in NonEmptyList using foldLeft or
+foldRight. Does the choice of fold method affect the results?
+7. Reimplement the filter and map methods for Lists using foldLeft or foldRight.
+8. Reimplement foldLeft and foldRight so they don’t use recursion. If you use mutable
+values, preserve thread safety.
+

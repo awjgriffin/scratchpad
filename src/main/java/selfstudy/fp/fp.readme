@@ -1,0 +1,6 @@
+FP NOTES
+
+
+BOTTOM-UP PROGRAMMING means building the libraries and tools and operators - extending the language - before
+writing the application code.   
+Creating a new language from the base language, until the border between application and language become evident.
