@@ -19,11 +19,4 @@ public class Problem4 extends EulerProblem {
 		System.out.println(max);
 	}
 
-	@Override
-	public String problemDescription() {
-		return "A palindromic number reads the same both ways.\n" + 
-				"The largest palindrome made from the product of two 2-digit numbers is 9009 = 91 × 99." + 
-				"Find the largest palindrome made from the product of two 3-digit numbers.";
-	}
-	
 }

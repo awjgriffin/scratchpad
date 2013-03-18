@@ -109,7 +109,6 @@ public class Problem11 extends EulerProblem {
 			}
 			x++;
 			
-//			System.out.println(line);
 		}
 		
 		bufferedReader.close();
@@ -142,11 +141,4 @@ public class Problem11 extends EulerProblem {
 				"01 70 54 71 83 51 54 69 16 92 33 48 61 43 52 01 89 19 67 48\n";
 	}
 	
-	@Override
-	public String problemDescription() {
-
-		return  getArrayString() +  
-		"What is the greatest product of four adjacent numbers in any direction (up, down, left, right, or diagonally) in the 20×20 grid?";
-	}
-
 }

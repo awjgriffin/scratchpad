@@ -61,13 +61,5 @@ public class Problem9 extends EulerProblem {
 		};
 		
 	}
-	
-	@Override
-	public String problemDescription() {
-		return "A Pythagorean triplet is a set of three natural numbers, a < b < c, for which, a^2 + b^2 = c^2\n" +
-				"For example, 3^2 + 4^2 = 9 + 16 = 25 = 5^2.\n" +
-				"There exists exactly one Pythagorean triplet for which a + b + c = 1000.\n" +
-				"Find the product abc.";
-	}
 
 }
