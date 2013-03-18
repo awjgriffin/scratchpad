@@ -142,6 +142,10 @@ public class IteratorFunctionalUtilsTests {
 		printIterator(longs());
 	}	
 	
+	@Test
+	public void testTriangles() {
+		printIterator(triangles());
+	}		
 	
 	// --- HELPER METHODS ---------------------------------
 	private void printIterator(Iterator<?> in) {

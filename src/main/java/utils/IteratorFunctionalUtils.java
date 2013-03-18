@@ -14,7 +14,7 @@ public class IteratorFunctionalUtils {
 	/**
 	 * @return an Iterator of monotonically increasing integers starting at 1 and ending at <code>Integer.MAX_VALUE</code>.
 	 */
-	public static Iterator<Integer> integers() {
+	public static Iterator<Integer> positiveIntegers() {
 		return naturals(Integer.MAX_VALUE);
 	}
 	
@@ -116,12 +116,11 @@ public class IteratorFunctionalUtils {
 
 			private Long getNext() {
 				
-				terms = expandArray(terms);
+				terms = expandArrayByOne(terms);
 				return terms[counter] = counter < 2 ? counter : terms[counter - 1] + terms[counter - 2];
 			}
 			
-			public void remove() {
-			}
+			public void remove() {  		}
 			
 		};
 		
@@ -145,8 +144,7 @@ public class IteratorFunctionalUtils {
 				return array[idx++];
 			}
 
-			public void remove() {
-			}
+			public void remove() {  		}
 			
 		};
 		
@@ -207,7 +205,7 @@ public class IteratorFunctionalUtils {
 			}
 			
 			public void updatePrimes(long n) {
-				knownPrimes = expandArray(knownPrimes);
+				knownPrimes = expandArrayByOne(knownPrimes);
 				knownPrimes[knownPrimes.length - 1] = n;
 			}
 			
@@ -225,8 +223,7 @@ public class IteratorFunctionalUtils {
 				return next;
 			}
 
-			public void remove() {
-			}
+			public void remove() {   }
 		};
 		
 	}
@@ -243,7 +240,7 @@ public class IteratorFunctionalUtils {
 			
 			if(num % i == 0){
 				long result = num / i;
-				factors = expandArray(factors, 2);
+				factors = expandArray(factors, 2, true);
 				factors[factors.length-2] = i;
 				factors[factors.length-1] = result;
 				max = result;
@@ -251,20 +248,22 @@ public class IteratorFunctionalUtils {
 			
 		}
 		
-		factors = expandArray(factors);
+		factors = expandArrayByOne(factors);
 		factors[factors.length-1] = num;
 		
 		return factors;
 	}
 
-	public static Long[] expandArray(Long[] in) {
-		return expandArray(in, 1);
+	public static Long[] expandArrayByOne(Long[] in) {
+		return expandArray(in, 1, true);
 	}
 	
-	public static Long[] expandArray(Long[] in, int byHowMany) {
-		Long[] oldArray = in;
+	public static Long[] expandArray(Long[] in, int byHowMany, boolean defaultZero) {
+		Long[] newArray = in; 
 		in = new Long[in.length + byHowMany];
-		System.arraycopy(oldArray, 0, in, 0, oldArray.length);
+		System.arraycopy(newArray, 0, in, 0, newArray.length);
+		if(defaultZero)
+			newArray[newArray.length-1] = 0l;
 		return in;
 	}
 	
@@ -479,8 +478,7 @@ public class IteratorFunctionalUtils {
 						return next;
 					}
 
-					public void remove() {
-					}
+					public void remove() {   }
 					
 				};
 
@@ -516,8 +514,7 @@ public class IteratorFunctionalUtils {
 						return in[i++];
 					}
 	
-					public void remove() {
-					}
+					public void remove() {        	}
 					
 				};
 			}
@@ -611,8 +608,7 @@ public class IteratorFunctionalUtils {
 				return new Character(charArray[i++]);
 			}
 
-			public void remove() {
-			}
+			public void remove() {   			}
 			
 		};
 		
@@ -649,10 +645,51 @@ public class IteratorFunctionalUtils {
 				return 1;
 			}
 
-			public void remove() {
-			}
+			public void remove() {   }
 			 
 		 };
 	 }
-	
+
+	 /**
+	  * @return a stream of triangle numbers, with <code>Long.MAX_VALUE</code> as the default limit.
+	  */
+	 public static Iterator<Long> triangles() {
+		 
+		 return new Iterator<Long>() {
+
+			Long [] naturals = new Long [1];
+			{	naturals[0] = 1l; }
+			
+   		 	boolean hasNext = true;
+   		 	
+			@Override
+			public boolean hasNext() {
+				return hasNext;
+			}
+
+			@Override
+			public Long next() {
+				
+				// this only needs to contain the triangles, not all the naturals, i.e. [1,3,6,10...]
+				// you just calculate the next by taking the last and adding the array length
+				
+				long val = naturals[naturals.length - 1] = ( naturals.length > 1  ) ? ( naturals[naturals.length - 2] + naturals.length ) : 1;
+				
+				// check next:
+				if( (val + naturals.length) > Long.MAX_VALUE ){
+					hasNext = false;
+				} else {
+					naturals = expandArrayByOne( naturals );
+				}
+				
+				return val;
+				
+			}
+			
+			@Override
+			public void remove() {		}
+			 
+		};
+	 }
+	 
 }
