@@ -1,5 +1,7 @@
 package misc;
 
+import java.util.Properties;
+
 public class Misc {
 
 	

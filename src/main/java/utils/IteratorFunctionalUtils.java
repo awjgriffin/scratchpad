@@ -267,6 +267,15 @@ public class IteratorFunctionalUtils {
 		return in;
 	}
 	
+	public static long[] expandArray(long[] in, int byHowMany, boolean defaultZero) {
+		long[] newArray = in; 
+		in = new long[in.length + byHowMany];
+		System.arraycopy(newArray, 0, in, 0, newArray.length);
+		if(defaultZero)
+			newArray[newArray.length-1] = 0l;
+		return in;
+	}
+	
 	
 	public static boolean isPalindrome(Long num) {
 		boolean isPalindrome = true;

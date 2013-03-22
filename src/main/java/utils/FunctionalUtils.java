@@ -1,7 +1,6 @@
 package utils;
 
 import selfstudy.ds.BinarySearchTree;
-import selfstudy.ds.Iterator;
 import selfstudy.ds.LinkedList;
 import selfstudy.fp.Function;
 import selfstudy.fp.Predicate;
