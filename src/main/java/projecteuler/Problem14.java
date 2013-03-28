@@ -19,7 +19,7 @@ public class Problem14 extends EulerProblem {
 			}  
 		}
 
-		System.out.println(String.format("The number is %d, and the terms are %s", num, arrayToString(numTerms)));
+		System.out.println(String.format("The number is %d, with %d terms: %s", num, numTerms.length, arrayToString(numTerms)));
 		
 	}
 

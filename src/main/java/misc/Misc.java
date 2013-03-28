@@ -25,11 +25,18 @@ public class Misc {
 	
 	public static void main(String[] args) {
 	
+		double d = .000001d;
+		System.out.println(Float.MIN_VALUE );
+		
+		
 		try {
-			throwException();
+//			throwException();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		
+		
 		
 	}
 	

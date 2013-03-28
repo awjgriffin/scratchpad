@@ -5,11 +5,11 @@ TODO:
 
 2. Calculate compound interest, calc discount factor, PV in terms of REDUCE
 
-3. Try a simple app only using HashMaps instead of custom classes/domain objects, a la clojure records
+3. Try a simple app only using HashMaps instead of POJO classes/domain objects, a la clojure records
 
 4. Fix LinkedList so it's a persistent data structure 
 
-5. 
+5. GITHUB this project and sync from home.
 
 6. Write a REPL, complete with command history, perhaps a learning intuitive/auto-complete(as the history grows, so does the REPL's "vocabulary")
 6a) Write a simple test to take the name of a class and load it into memory, without using "new"
