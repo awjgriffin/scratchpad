@@ -9,6 +9,7 @@ public class Problem15 extends EulerProblem {
 
 		
 		
+		
 	}
 
 }
