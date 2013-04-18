@@ -12,6 +12,7 @@ TODO:
 5. GITHUB this project and sync from home.
 
 6. Write a REPL, complete with command history, perhaps a learning intuitive/auto-complete(as the history grows, so does the REPL's "vocabulary")
+
 6a) Write a simple test to take the name of a class and load it into memory, without using "new"
 
 

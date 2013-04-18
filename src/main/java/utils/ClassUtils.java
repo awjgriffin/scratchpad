@@ -1,7 +1,6 @@
 package utils;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class ClassUtils {
@@ -34,11 +33,7 @@ public class ClassUtils {
 	
 	public static void listInterfaces(Class<?> cls) {
 		
-		Iterator<Class<?>> iterator = findInterfaces(cls).iterator();
-		while (iterator.hasNext()) {
-			Class<?> c = (Class<?>) iterator.next();
-			System.out.println(c.getName());
-		}
+		new PrintUtils().printIterator( findInterfaces(cls).iterator() );
 	}
 	
 }

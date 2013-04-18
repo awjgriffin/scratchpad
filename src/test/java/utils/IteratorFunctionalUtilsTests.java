@@ -149,9 +149,7 @@ public class IteratorFunctionalUtilsTests {
 	
 	// --- HELPER METHODS ---------------------------------
 	private void printIterator(Iterator<?> in) {
-		while(in.hasNext()) {
-			System.out.println(in.next());
-		}
+		new PrintUtils().printIterator(in);
 	}
 	
 }
