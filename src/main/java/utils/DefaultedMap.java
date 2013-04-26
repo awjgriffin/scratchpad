@@ -4,10 +4,16 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-
+/**
+ * @author grandre
+ *
+ * @param <K>
+ * @param <V>
+ */
 public class DefaultedMap<K, V> extends AbstractMap<K, V> {
 	
 	private Map<K,V> base = null;
@@ -27,6 +33,10 @@ public class DefaultedMap<K, V> extends AbstractMap<K, V> {
 	}	
 	
 	
+	/**
+	 * TODO: what was the intention of this?
+	 * @return
+	 */
 	public DefaultedMap<K,V> getLoggingProxy(){
 		
 		return (DefaultedMap<K,V>) Proxy.newProxyInstance(DefaultedMap.class.getClassLoader(), new Class[]{Map.class}, new InvocationHandler() {
@@ -44,13 +54,12 @@ public class DefaultedMap<K, V> extends AbstractMap<K, V> {
 	}		
 	
 	/**
-	 * 
 	 * @param key - 
-	 * @param def - A default value which is returned if the value is not found.
+	 * @param defaultValue - A default value which is returned if the value is not found.
 	 * @return either the value corresponding to the key, or the default supplied.
 	 */
-	public V getWithDefault(K key, V def){
-		return (key == null || base.get(key) == null) ? def : base.get(key);
+	public V get(K key, V defaultValue){
+		return (key == null || base.get(key) == null) ? defaultValue : base.get(key);
 	}
 
 	@Override

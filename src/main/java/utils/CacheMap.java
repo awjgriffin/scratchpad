@@ -49,7 +49,7 @@ public class CacheMap<K, V> extends AbstractMap<K, V> implements Map<K,V> {
 				try {
 					newValues = loadMethod.reload();
 				} catch (Exception e) {
-					logger.error("SEVERE: Could not reload cache; data may be stale or empty.");
+					logger.error("SEVERE: Could not reload cache; data may be stale or empty.", e);
 					return; 
 				}
 				

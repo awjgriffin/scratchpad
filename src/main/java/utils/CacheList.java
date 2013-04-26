@@ -48,7 +48,7 @@ public class CacheList<E> extends AbstractList<E> implements List<E> {
 				try {
 					newValues = loadMethod.reload();
 				} catch (Exception e) {
-					logger.error("SEVERE: Could not reload cache; data may be stale or empty.");
+					logger.error("SEVERE: Could not reload cache; data may be stale or empty.", e);
 					return; 
 				}
 				

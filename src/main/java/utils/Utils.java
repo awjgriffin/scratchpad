@@ -44,8 +44,8 @@ public class Utils {
 		};
 	}
 	
-	public static <K,V> Map<K, V> disableCacheMap(Map<K,V> in) { 		return (in instanceof CacheMap) ? ((CacheMap<K,V>)in).turnOff() : in;   	}
+	public static <K,V> Map<K, V> disableCacheMap(CacheMap<K,V> in) { 		return in.turnOff(); 	}
 	
-	public static <E> List<E> disableCacheList(List<E> in) { 		return (in instanceof CacheList) ? ((CacheList<E>)in).turnOff() : in;   	}
+	public static <E> List<E> disableCacheList(CacheList<E> in) { 		return in.turnOff();   	}
 	
 }
