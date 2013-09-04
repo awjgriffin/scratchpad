@@ -280,8 +280,6 @@ public class ConfigTool {
 		}
 	}
 
-	List<Node> visited = new ArrayList<Node>();
-	
 	/**
 	 * Credit goes to:
 	 * http://myarch.com/treeiter/traditways
