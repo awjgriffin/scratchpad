@@ -1,5 +1,6 @@
 package utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -48,4 +49,57 @@ public class Utils {
 	
 	public static <E> List<E> disableCacheList(CacheList<E> in) { 		return in.turnOff();   	}
 	
+	
+	/**
+	 * Also works as &quot;rename file &quot;.
+	 * @param from
+	 * @param to
+	 */
+	public static boolean moveFile(File from, File to) {
+
+		boolean wasThere = from.exists();
+		
+		// credit for below: http://stackoverflow.com/questions/1000183/reliable-file-renameto-alternative-on-windows
+		for (int i = 0; i < 20; i++) {
+		    if (from.renameTo(to))
+		        break;
+		    System.gc();
+		    Thread.yield();
+		}
+		
+		return wasThere && !from.exists() && to.exists();
+		
+/*		try{
+			
+			boolean wasThere = from.exists();
+			
+			switch( OS.getCurrentOS() ) {
+			
+				case Windows:
+					Runtime.getRuntime().exec( String.format( "cmd /c move /y %s %s", from.getAbsoluteFile(), to.getAbsoluteFile() ) );
+					break;
+				case Unix:
+				case SunOS:
+					Runtime.getRuntime().exec( String.format( "mv %s %s", from.getAbsoluteFile(), to.getAbsoluteFile() ) );
+					break;
+				case Mac:
+				default:
+					return false;
+			}
+			
+			Thread.sleep( 200 );
+			
+			boolean isGone = !from.exists();
+			
+			return wasThere && isGone;
+			
+		} catch (Exception e) {
+	
+			return false;
+		} 		
+		*/
+		
+
+		
+	}
 }

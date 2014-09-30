@@ -18,18 +18,22 @@ public class PrintUtils {
 		this.writer = writer;
 	}
 	
-	public void printIterator(Iterator<?> in) {
+	public void printIterator(Iterator<?> in) throws IOException {
 		
 		while(in.hasNext()) {
 			
 			try {
 
 				writer.write( in.next().toString() );
+				writer.write( "\n" );
 				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+		
+		writer.flush();
+		
 	}
 	
 }

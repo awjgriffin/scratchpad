@@ -1,4 +1,4 @@
-package utils;
+package com.db.gm.rpl;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
@@ -31,6 +31,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import selfstudy.ds.CoolSet;
+
 
 /**
  * Takes one mandatory argument, a filename.
@@ -61,46 +63,8 @@ public class ConfigTool {
 	private final Document baselineXML;
 	private Document compareeXML;
 	
-	private Set<String> commandHistory = new HashSet<String>(){
-
-		@Override
-		public boolean add(String str) {
-
-			if(!StringUtils.isEmpty(str)) { super.add(str);  }
-			
-			return true;
-		}
-		
-		@Override
-		public String toString() {
-
-			int i = 1;
-			StringBuffer stringBuffer = new StringBuffer().append("");
-			
-			for(String s : this){
-				stringBuffer.append(i++).append(". ").append(s).append("\n");
-			}
-			return stringBuffer.toString();
-		}
-		
-	};
-	
-	
-	@SuppressWarnings("serial")
-	private final static Set<String> differences = new HashSet<String>(){
-
-		@Override
-		public String toString() {
-
-			StringBuffer stringBuffer = new StringBuffer().append("Differences:");
-			
-			for(String s : this){
-				stringBuffer.append(s).append("\n");
-			}
-			return stringBuffer.toString();
-		}
-		
-	};
+	private Set<String> commandHistory = new CoolSet<String>();   // TODO: need 
+	private final static Set<String> differences = new CoolSet<String>();  
 	
 	
 	private ConfigTool(Document baselineXML) {
@@ -155,7 +119,7 @@ public class ConfigTool {
 			help("View help");
 			
 			final String description;
-
+			
 			private Command(String description) {
 				this.description = description;
 			}
@@ -213,14 +177,17 @@ public class ConfigTool {
 						break;
 					case compare:
 
-						if(validWith((commandElements.length > 1 && isParsable(commandElements[1])), BAD_XML_MSG)){
+						if( validWith ( ( commandElements.length > 1 && isParsable(commandElements[1])), BAD_XML_MSG ) ){
 							compareeXML = parse(commandElements[1]);
 							// TODO: compare, etc
 							
-						} break;
+						} 
+						
+						break;
+						
 					case find:
 
-						if(validWith((commandElements.length > 1), INSUFFICIENT_PARAMS_MSG)) {
+						if(validWith ( ( commandElements.length > 1 ), INSUFFICIENT_PARAMS_MSG ) ) {
 							// find <this>
 							// displays multiple results, etc
 							// visit every node and check for @ + name
@@ -228,8 +195,12 @@ public class ConfigTool {
 							//TODO: handle nodes
 							printWithDefault(lookupValue(commandElements[1]), "No such element found.");
 							
-						} break;
+						} 
+						
+						break;
+						
 					case ports:
+						
 						StringBuffer sb 
 							= new StringBuffer("ac: ")
 								.append(lookupValue("/RiskEngineSetupInfo/AppControllers/AppController/@port"))
@@ -382,6 +353,7 @@ public class ConfigTool {
 	}
 
 	//TODO
+	// use an xsl stylesheet?
 	private Document sort(Document in) {
 		
 		Document out = null; 

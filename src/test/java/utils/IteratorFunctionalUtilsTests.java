@@ -1,4 +1,5 @@
 package utils;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Iterator;
 
@@ -149,7 +150,12 @@ public class IteratorFunctionalUtilsTests {
 	
 	// --- HELPER METHODS ---------------------------------
 	private void printIterator(Iterator<?> in) {
-		new PrintUtils().printIterator(in);
+		
+		try {
+			new PrintUtils().printIterator(in);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 }

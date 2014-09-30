@@ -1,5 +1,6 @@
 package utils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +34,12 @@ public class ClassUtils {
 	
 	public static void listInterfaces(Class<?> cls) {
 		
-		new PrintUtils().printIterator( findInterfaces(cls).iterator() );
+		try {
+			new PrintUtils().printIterator( findInterfaces(cls).iterator() );
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 }
